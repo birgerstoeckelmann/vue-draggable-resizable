@@ -176,6 +176,10 @@ export default {
       default: 0,
       validator: (val) => typeof val === 'number',
     },
+    shiftKeyActive: {
+      type: Boolean,
+      default: false,
+    },
     handles: {
       type: Array,
       default: () => ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'ro'],
@@ -598,7 +602,12 @@ export default {
       let vStart = new Vector(mouseClickPosition.mouseX / this.scaling - rCenter.x / this.scaling, mouseClickPosition.mouseY /
         this.scaling - rCenter.y / this.scaling)
       let vEnd = new Vector(endX - rCenter.x / this.scaling, endY - rCenter.y / this.scaling)
-      this.rawRotation = (vEnd.angleDeg() - vStart.angleDeg())
+      let rotation = Math.round((vEnd.angleDeg() - vStart.angleDeg()))
+      let rawRotation = rotation < 0 ? 360 + rotation : rotation
+      if(this.shiftKeyActive) {
+        rawRotation = Math.round(rawRotation / 45) * 45
+      }
+      this.rawRotation = rawRotation
       this.$emit('rotating', this.r)
     },
     handleMove (e) {
@@ -640,7 +649,7 @@ export default {
 
       if(this.rotating) {
         this.rotating = false
-        let currentRotation = this.rotation + this.rawRotation
+        let currentRotation = this.calcRotation()
         this.rawRotation = 0
         this.$emit('rotatestop', currentRotation)
       }
@@ -663,6 +672,10 @@ export default {
 
       return [x, y]
     },
+    calcRotation() {
+      let r = this.shiftKeyActive ? Math.round((this.rotation + this.rawRotation) / 45) * 45 : this.rotation + this.rawRotation
+      return r % 360
+    }
   },
   computed: {
     style () {
@@ -698,7 +711,7 @@ export default {
       return (Boolean(this.handle) && ['tl', 'tr', 'br', 'bl'].includes(this.handle))
     },
     r() {
-      return this.rawRotation + this.rotation
+      return this.calcRotation()
     }
   },
 
