@@ -595,9 +595,9 @@ export default {
       const endX = e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling
       const endY = e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling
       let rCenter = getElementCenter(this.$el)
-      let vStart = new Vector(mouseClickPosition.mouseX / this.scaling - rCenter.x, mouseClickPosition.mouseY /
-        this.scaling - rCenter.y)
-      let vEnd = new Vector(endX - rCenter.x, endY - rCenter.y)
+      let vStart = new Vector(mouseClickPosition.mouseX / this.scaling - rCenter.x / this.scaling, mouseClickPosition.mouseY /
+        this.scaling - rCenter.y / this.scaling)
+      let vEnd = new Vector(endX - rCenter.x / this.scaling, endY - rCenter.y / this.scaling)
       this.rawRotation = (vEnd.angleDeg() - vStart.angleDeg())
       this.$emit('rotating', this.r)
     },
