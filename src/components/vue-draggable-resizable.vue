@@ -32,27 +32,27 @@ const events = {
   mouse: {
     start: 'mousedown',
     move: 'mousemove',
-    stop: 'mouseup'
+    stop: 'mouseup',
   },
   touch: {
     start: 'touchstart',
     move: 'touchmove',
-    stop: 'touchend'
-  }
+    stop: 'touchend',
+  },
 }
 
 const userSelectNone = {
   userSelect: 'none',
   MozUserSelect: 'none',
   WebkitUserSelect: 'none',
-  MsUserSelect: 'none'
+  MsUserSelect: 'none',
 }
 
 const userSelectAuto = {
   userSelect: 'auto',
   MozUserSelect: 'auto',
   WebkitUserSelect: 'auto',
-  MsUserSelect: 'auto'
+  MsUserSelect: 'auto',
 }
 
 let eventsFor = events.mouse
@@ -63,151 +63,151 @@ export default {
   props: {
     scaling: {
       type: Number,
-      default: 1.0
+      default: 1.0,
     },
     debug: {
       type: Boolean,
-      default: false
+      default: false,
     },
     className: {
       type: String,
-      default: 'vdr'
+      default: 'vdr',
     },
     classNameDraggable: {
       type: String,
-      default: 'draggable'
+      default: 'draggable',
     },
     classNameResizable: {
       type: String,
-      default: 'resizable'
+      default: 'resizable',
     },
     classNameDragging: {
       type: String,
-      default: 'dragging'
+      default: 'dragging',
     },
     classNameResizing: {
       type: String,
-      default: 'resizing'
+      default: 'resizing',
     },
     classNameActive: {
       type: String,
-      default: 'active'
+      default: 'active',
     },
     classNameHandle: {
       type: String,
-      default: 'handle'
+      default: 'handle',
     },
     disableUserSelect: {
       type: Boolean,
-      default: true
+      default: true,
     },
     enableNativeDrag: {
       type: Boolean,
-      default: false
+      default: false,
     },
     preventDeactivation: {
       type: Boolean,
-      default: false
+      default: false,
     },
     active: {
       type: Boolean,
-      default: false
+      default: false,
     },
     draggable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     resizable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     lockAspectRatio: {
       type: Boolean,
-      default: false
+      default: false,
     },
     w: {
       type: Number,
       default: 200,
-      validator: (val) => val > 0
+      validator: (val) => val > 0,
     },
     h: {
       type: Number,
       default: 200,
-      validator: (val) => val > 0
+      validator: (val) => val > 0,
     },
     minWidth: {
       type: Number,
       default: 0,
-      validator: (val) => val >= 0
+      validator: (val) => val >= 0,
     },
     minHeight: {
       type: Number,
       default: 0,
-      validator: (val) => val >= 0
+      validator: (val) => val >= 0,
     },
     maxWidth: {
       type: Number,
       default: null,
-      validator: (val) => val >= 0
+      validator: (val) => val >= 0,
     },
     maxHeight: {
       type: Number,
       default: null,
-      validator: (val) => val >= 0
+      validator: (val) => val >= 0,
     },
     x: {
       type: Number,
       default: 0,
-      validator: (val) => typeof val === 'number'
+      validator: (val) => typeof val === 'number',
     },
     y: {
       type: Number,
       default: 0,
-      validator: (val) => typeof val === 'number'
+      validator: (val) => typeof val === 'number',
     },
     z: {
       type: [String, Number],
       default: 'auto',
-      validator: (val) => (typeof val === 'string' ? val === 'auto' : val >= 0)
+      validator: (val) => (typeof val === 'string' ? val === 'auto' : val >= 0),
     },
     handles: {
       type: Array,
-      default: () => ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml'],
+      default: () => ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'ro'],
       validator: (val) => {
-        const s = new Set(['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml'])
+        const s = new Set(['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'ro'])
 
         return new Set(val.filter(h => s.has(h))).size === val.length
-      }
+      },
     },
     dragHandle: {
       type: String,
-      default: null
+      default: null,
     },
     dragCancel: {
       type: String,
-      default: null
+      default: null,
     },
     axis: {
       type: String,
       default: 'both',
-      validator: (val) => ['x', 'y', 'both'].includes(val)
+      validator: (val) => ['x', 'y', 'both'].includes(val),
     },
     grid: {
       type: Array,
-      default: () => [1, 1]
+      default: () => [1, 1],
     },
     parent: {
       type: [Boolean, String],
-      default: false
+      default: false,
     },
     onDragStart: {
       type: Function,
-      default: null
+      default: null,
     },
     onResizeStart: {
       type: Function,
-      default: null
-    }
+      default: null,
+    },
   },
 
   data: function () {
@@ -239,15 +239,17 @@ export default {
       enabled: this.active,
       resizing: false,
       dragging: false,
-      zIndex: this.z
+      zIndex: this.z,
     }
   },
 
   created: function () {
     // eslint-disable-next-line
-    if (this.maxWidth && this.minWidth > this.maxWidth) console.warn('[Vdr warn]: Invalid prop: minWidth cannot be greater than maxWidth')
+    if (this.maxWidth && this.minWidth > this.maxWidth) console.warn(
+      '[Vdr warn]: Invalid prop: minWidth cannot be greater than maxWidth')
     // eslint-disable-next-line
-    if (this.maxWidth && this.minHeight > this.maxHeight) console.warn('[Vdr warn]: Invalid prop: minHeight cannot be greater than maxHeight')
+    if (this.maxWidth && this.minHeight > this.maxHeight) console.warn(
+      '[Vdr warn]: Invalid prop: minHeight cannot be greater than maxHeight')
 
     this.resetBoundsAndMouseState()
   },
@@ -279,7 +281,7 @@ export default {
 
   methods: {
     resetBoundsAndMouseState () {
-      this.mouseClickPosition = { mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0 }
+      this.mouseClickPosition = {mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0}
 
       this.bounds = {
         minLeft: null,
@@ -289,7 +291,7 @@ export default {
         minTop: null,
         maxTop: null,
         minBottom: null,
-        maxBottom: null
+        maxBottom: null,
       }
     },
     checkParentSize () {
@@ -314,7 +316,7 @@ export default {
 
         return [
           parseInt(style.getPropertyValue('width'), 10),
-          parseInt(style.getPropertyValue('height'), 10)
+          parseInt(style.getPropertyValue('height'), 10),
         ]
       }
 
@@ -386,7 +388,8 @@ export default {
         minTop: (this.parentHeight + this.top) % this.grid[1],
         maxTop: Math.floor((this.parentHeight - this.height - this.top) / this.grid[1]) * this.grid[1] + this.top,
         minBottom: (this.parentHeight + this.bottom) % this.grid[1],
-        maxBottom: Math.floor((this.parentHeight - this.height - this.bottom) / this.grid[1]) * this.grid[1] + this.bottom
+        maxBottom: Math.floor((this.parentHeight - this.height - this.bottom) / this.grid[1]) * this.grid[1] +
+        this.bottom,
       }
     },
     deselect (e) {
@@ -437,7 +440,12 @@ export default {
 
       this.bounds = this.calcResizeLimits()
 
-      addEvent(document.documentElement, eventsFor.move, this.handleMove)
+      // rotation handle
+      if (handle === 'ro') {
+        addEvent(document.documentElement, eventsFor.move, this.handleRotate)
+      } else {
+        addEvent(document.documentElement, eventsFor.move, this.handleMove)
+      }
       addEvent(document.documentElement, eventsFor.stop, this.handleUp)
     },
     calcResizeLimits () {
@@ -483,7 +491,7 @@ export default {
         minRight: null,
         maxRight: null,
         minBottom: null,
-        maxBottom: null
+        maxBottom: null,
       }
 
       if (this.parent) {
@@ -554,8 +562,10 @@ export default {
       const grid = this.grid
       const mouseClickPosition = this.mouseClickPosition
 
-      const tmpDeltaX = axis && axis !== 'y' ? mouseClickPosition.mouseX / this.scaling - (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling) : 0
-      const tmpDeltaY = axis && axis !== 'x' ? mouseClickPosition.mouseY / this.scaling - (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling) : 0
+      const tmpDeltaX = axis && axis !== 'y' ? mouseClickPosition.mouseX / this.scaling -
+        (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling) : 0
+      const tmpDeltaY = axis && axis !== 'x' ? mouseClickPosition.mouseY / this.scaling -
+        (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling) : 0
 
       const [deltaX, deltaY] = this.snapToGrid(this.grid, tmpDeltaX, tmpDeltaY)
 
@@ -568,12 +578,21 @@ export default {
 
       this.$emit('dragging', this.left, this.top)
     },
+    handleRotate (e) {
+      const tmpDeltaX = mouseClickPosition.mouseX / this.scaling -
+        (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling)
+      const tmpDeltaY = mouseClickPosition.mouseY / this.scaling -
+        (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling)
+      console.log(tmpDeltaX, tmpDeltaY)
+    },
     handleMove (e) {
       const handle = this.handle
       const mouseClickPosition = this.mouseClickPosition
 
-      const tmpDeltaX = mouseClickPosition.mouseX / this.scaling - (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling)
-      const tmpDeltaY = mouseClickPosition.mouseY / this.scaling - (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling)
+      const tmpDeltaX = mouseClickPosition.mouseX / this.scaling -
+        (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling)
+      const tmpDeltaY = mouseClickPosition.mouseY / this.scaling -
+        (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling)
 
       const [deltaX, deltaY] = this.snapToGrid(this.grid, tmpDeltaX, tmpDeltaY)
 
@@ -619,7 +638,7 @@ export default {
       const y = Math.round(pendingY / grid[1]) * grid[1]
 
       return [x, y]
-    }
+    },
   },
   computed: {
     style () {
@@ -630,7 +649,7 @@ export default {
         width: this.width + 'px',
         height: this.height + 'px',
         zIndex: this.zIndex,
-        ...(this.dragging && this.disableUserSelect ? userSelectNone : userSelectAuto)
+        ...(this.dragging && this.disableUserSelect ? userSelectNone : userSelectAuto),
       }
     },
     actualHandles () {
@@ -652,13 +671,10 @@ export default {
     },
     isCornerHandle () {
       return (Boolean(this.handle) && ['tl', 'tr', 'br', 'bl'].includes(this.handle))
-    }
+    },
   },
 
   watch: {
-    scaling (val) {
-      console.log('scaling in resizable ', val)
-    },
     active (val) {
       this.enabled = val
 
@@ -833,7 +849,7 @@ export default {
       if (delta % this.grid[1] === 0) {
         this.rawBottom = this.bottom + delta
       }
-    }
-  }
+    },
+  },
 }
 </script>
