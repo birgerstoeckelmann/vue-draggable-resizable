@@ -60,7 +60,9 @@
   top: -20px;
   right: -30px;
   cursor: alias;
-  background: #FF0000;
+  background: none;
+  border: 2px solid red;
+  border-radius: 50%;
 }
 @media only screen and (max-width: 768px) {
   [class*="handle-"]:before {

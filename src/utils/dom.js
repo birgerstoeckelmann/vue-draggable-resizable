@@ -8,7 +8,7 @@ export function matchesSelectorToParentElements (el, selector, baseNode) {
     'webkitMatchesSelector',
     'mozMatchesSelector',
     'msMatchesSelector',
-    'oMatchesSelector'
+    'oMatchesSelector',
   ].find(func => isFunction(node[func]))
 
   if (!isFunction(node[matchesSelectorFunc])) return false
@@ -45,5 +45,13 @@ export function removeEvent (el, event, handler) {
     el.removeEventListener(event, handler, true)
   } else {
     el['on' + event] = null
+  }
+}
+
+export function getElementCenter (el) {
+  let rect = el.getBoundingClientRect()
+  return {
+    x: (rect.left + rect.right) / 2,
+    y: (rect.bottom + rect.top) / 2,
   }
 }

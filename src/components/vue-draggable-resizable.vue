@@ -26,7 +26,8 @@
 </template>
 
 <script>
-import { matchesSelectorToParentElements, addEvent, removeEvent } from '../utils/dom'
+import { matchesSelectorToParentElements, addEvent, removeEvent, getElementCenter } from '../utils/dom'
+import Vector from 'victor'
 
 const events = {
   mouse: {
@@ -170,6 +171,11 @@ export default {
       default: 'auto',
       validator: (val) => (typeof val === 'string' ? val === 'auto' : val >= 0),
     },
+    rotation: {
+      type: Number,
+      default: 0,
+      validator: (val) => typeof val === 'number',
+    },
     handles: {
       type: Array,
       default: () => ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'ro'],
@@ -218,6 +224,7 @@ export default {
       rawTop: this.y,
       rawRight: null,
       rawBottom: null,
+      rawRotation: 0,
 
       left: this.x,
       top: this.y,
@@ -239,6 +246,7 @@ export default {
       enabled: this.active,
       resizing: false,
       dragging: false,
+      rotating: false,
       zIndex: this.z,
     }
   },
@@ -429,7 +437,11 @@ export default {
         this.handle = handle
       }
 
-      this.resizing = true
+      if(handle !== 'ro') {
+        this.resizing = true
+      } else {
+        this.rotating = true
+      }
 
       this.mouseClickPosition.mouseX = e.touches ? e.touches[0].pageX : e.pageX
       this.mouseClickPosition.mouseY = e.touches ? e.touches[0].pageY : e.pageY
@@ -579,11 +591,15 @@ export default {
       this.$emit('dragging', this.left, this.top)
     },
     handleRotate (e) {
-      const tmpDeltaX = mouseClickPosition.mouseX / this.scaling -
-        (e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling)
-      const tmpDeltaY = mouseClickPosition.mouseY / this.scaling -
-        (e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling)
-      console.log(tmpDeltaX, tmpDeltaY)
+      const mouseClickPosition = this.mouseClickPosition
+      const endX = e.touches ? e.touches[0].pageX / this.scaling : e.pageX / this.scaling
+      const endY = e.touches ? e.touches[0].pageY / this.scaling : e.pageY / this.scaling
+      let rCenter = getElementCenter(this.$el)
+      let vStart = new Vector(mouseClickPosition.mouseX / this.scaling - rCenter.x, mouseClickPosition.mouseY /
+        this.scaling - rCenter.y)
+      let vEnd = new Vector(endX - rCenter.x, endY - rCenter.y)
+      this.rawRotation = (vEnd.angleDeg() - vStart.angleDeg())
+      this.$emit('rotating', this.r)
     },
     handleMove (e) {
       const handle = this.handle
@@ -622,6 +638,13 @@ export default {
       this.rawLeft = this.left
       this.rawRight = this.right
 
+      if(this.rotating) {
+        this.rotating = false
+        let currentRotation = this.rotation + this.rawRotation
+        this.rawRotation = 0
+        this.$emit('rotatestop', currentRotation)
+      }
+
       if (this.resizing) {
         this.resizing = false
         this.$emit('resizestop', this.left, this.top, this.width, this.height)
@@ -632,6 +655,7 @@ export default {
       }
 
       removeEvent(document.documentElement, eventsFor.move, this.handleMove)
+      removeEvent(document.documentElement, eventsFor.move, this.handleRotate)
     },
     snapToGrid (grid, pendingX, pendingY) {
       const x = Math.round(pendingX / grid[0]) * grid[0]
@@ -649,6 +673,7 @@ export default {
         width: this.width + 'px',
         height: this.height + 'px',
         zIndex: this.zIndex,
+        transform: 'rotate('+this.r+'deg)',
         ...(this.dragging && this.disableUserSelect ? userSelectNone : userSelectAuto),
       }
     },
@@ -672,6 +697,9 @@ export default {
     isCornerHandle () {
       return (Boolean(this.handle) && ['tl', 'tr', 'br', 'bl'].includes(this.handle))
     },
+    r() {
+      return this.rawRotation + this.rotation
+    }
   },
 
   watch: {
