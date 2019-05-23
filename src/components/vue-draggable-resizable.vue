@@ -604,7 +604,7 @@ export default {
       let vEnd = new Vector(endX - rCenter.x / this.scaling, endY - rCenter.y / this.scaling)
       let rotation = Math.round((vEnd.angleDeg() - vStart.angleDeg()))
       let rawRotation = rotation < 0 ? 360 + rotation : rotation
-      if(this.shiftKeyActive) {
+      if(this.shiftKeyActive && this.enabled) {
         rawRotation = Math.round(rawRotation / 45) * 45
       }
       this.rawRotation = rawRotation
@@ -673,7 +673,7 @@ export default {
       return [x, y]
     },
     calcRotation() {
-      let r = this.shiftKeyActive ? Math.round((this.rotation + this.rawRotation) / 45) * 45 : this.rotation + this.rawRotation
+      let r = this.shiftKeyActive && this.enabled ? Math.round((this.rotation + this.rawRotation) / 45) * 45 : this.rotation + this.rawRotation
       return r % 360
     }
   },
